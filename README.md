@@ -45,28 +45,31 @@ Urban Roots est une plateforme de jardinage urbain collaboratif conçue pour :
 - **CSS :** Tailwind CSS
 
 ## Installation
+Clonez le dépôt :
+```sh
+  git clone https://github.com/your-username/urban-roots-backend.git
+  cd urban-roots-backend
+```
 
-1. Clonez le dépôt :
-   ``sh
-   git clone https://github.com/your-username/urban-roots-backend.git
-   cd urban-roots-backend
-2. Installez les dépendances :
-
-   ``sh
+Installez les dépendances :
+```sh
   npm install
-3. Créez un fichier .env à la racine du projet et configurez vos variables d'environnement :
+```
 
-.env
-DATABASE_URL=mongodb://localhost:27017/urbanroots
-JWT_SECRET=your_secret_key
+Créez un fichier .env à la racine du projet et configurez vos variables d'environnement :
+```env
+  DB_URI=your_mongo_db_URI
+  ACCESS_TOKEN_SECRET=your_secret_key
+  REFRESH_TOKEN_SECRET=your_secret_key
+```
 
-4. Lancez le serveur de développement :
-
-  ``sh
+Lancez le serveur de développement :
+```sh
   npm run dev
+```
 
 ## Utilisation
-Une fois le serveur démarré, l'API sera accessible à http://localhost:3000. Vous pouvez utiliser des outils comme Postman pour interagir avec les différentes routes de l'API.
+Une fois le serveur démarré, l'API sera accessible à http://localhost:3500. Vous pouvez utiliser des outils comme Postman pour interagir avec les différentes routes de l'API.
 
 ## Documentation de l'API
 La documentation détaillée de l'API est disponible ici.
