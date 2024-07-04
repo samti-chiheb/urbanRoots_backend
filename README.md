@@ -10,6 +10,10 @@ Bienvenue dans le dépôt backend du projet Urban Roots. Ce projet vise à encou
   - [Fonctionnalités](#fonctionnalités)
   - [Technologies Utilisées](#technologies-utilisées)
   - [Installation](#installation)
+  - [Utilisation](#utilisation)
+  - [Documentation de l'API](#documentation-de-lapi)
+  - [Contribution](#contribution)
+  - [Licence](#licence)
 
 ## Présentation du Projet
 
@@ -43,38 +47,38 @@ Urban Roots est une plateforme de jardinage urbain collaboratif conçue pour :
 ## Installation
 
 1. Clonez le dépôt :
-   ```sh
+   ``sh
    git clone https://github.com/your-username/urban-roots-backend.git
    cd urban-roots-backend
-Installez les dépendances :
+2. Installez les dépendances :
 
-sh
-Copier le code
-npm install
-Créez un fichier .env à la racine du projet et configurez vos variables d'environnement :
+   ``sh
+  npm install
+3. Créez un fichier .env à la racine du projet et configurez vos variables d'environnement :
 
-env
-Copier le code
+.env
 DATABASE_URL=mongodb://localhost:27017/urbanroots
 JWT_SECRET=your_secret_key
-Lancez le serveur de développement :
 
-sh
-Copier le code
-npm run dev
-Utilisation
+4. Lancez le serveur de développement :
+
+  ``sh
+  npm run dev
+
+## Utilisation
 Une fois le serveur démarré, l'API sera accessible à http://localhost:3000. Vous pouvez utiliser des outils comme Postman pour interagir avec les différentes routes de l'API.
 
-Documentation de l'API
+## Documentation de l'API
 La documentation détaillée de l'API est disponible ici.
 
-Contribution
+## Contribution
 Les contributions sont les bienvenues ! Pour contribuer, veuillez suivre ces étapes :
 
-Fork le projet.
-Créez votre branche de fonctionnalité (git checkout -b feature/AmazingFeature).
-Commitez vos changements (git commit -m 'Add some AmazingFeature').
-Poussez vers la branche (git push origin feature/AmazingFeature).
-Ouvrez une Pull Request.
-Licence
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+1. Fork le projet.
+2. Créez votre branche de fonctionnalité (git checkout -b feature/AmazingFeature).
+3. Commitez vos changements (git commit -m 'Add some AmazingFeature').
+4. Poussez vers la branche (git push origin feature/AmazingFeature).
+5. Ouvrez une Pull Request.
+
+## Licence
+Ce projet est sous licence MIT.
