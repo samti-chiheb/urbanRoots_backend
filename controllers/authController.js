@@ -59,7 +59,7 @@ const register = async (req, res) => {
 
   try {
     //encrypte the password
-    const hashedPwd = await bcrypt.hash(pwd, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Création et enregistrement du nouvel utilisateur
     const result = await User.create({
@@ -67,7 +67,7 @@ const register = async (req, res) => {
       lastname,
       username,
       email,
-      password: hashedPwd,
+      password: hashedPassword,
       profilePhoto,
       bio,
       location,
@@ -125,7 +125,7 @@ const login = async (req, res) => {
     const accessToken = jwt.sign(
       {
         "userInfo": {
-          "id": foundUser._id,
+          "id": foundUser.id,
           "username": foundUser.username,
           "roles": roles,
         },
@@ -135,7 +135,7 @@ const login = async (req, res) => {
     );
 
     const refreshToken = jwt.sign(
-      { "id": foundUser._id, "username": foundUser.username },
+      { "id": foundUser.id, "username": foundUser.username },
       refreshTokenSecret,
       { expiresIn: refreshTokenExpiry }
     );
@@ -169,15 +169,16 @@ const login = async (req, res) => {
  */
 const getAccessToken = async (req, res) => {
   const cookies = req.cookies;
+  console.log(cookies);
   if (!cookies?.jwt) return res.sendStatus(401);
   const refreshToken = cookies.jwt;
-
   const foundUser = await User.findOne({ refreshToken }).exec();
+
   if (!foundUser) return res.sendStatus(403); // Forbidden
 
   jwt.verify(refreshToken, refreshTokenSecret, (err, decoded) => {
     // to check : decoded and jwt payload
-    if (err || foundUser._id !== decoded.id) return res.sendStatus(403); // Forbidden
+    if (err || foundUser.id !== decoded.id) return res.sendStatus(403); // Forbidden
 
     const roles = Object.values(foundUser.roles).filter(Boolean);
 
@@ -185,7 +186,7 @@ const getAccessToken = async (req, res) => {
     const accessToken = jwt.sign(
       {
         "userInfo": {
-          "id": foundUser._id,
+          "id": foundUser.id,
           "username": foundUser.username,
           "roles": roles,
         },
@@ -212,19 +213,26 @@ const getAccessToken = async (req, res) => {
  * @returns {void}
  */
 const updateUserInfo = async (req, res) => {
-  const { id, ...updates } = req.body;
+  // toDO : optimise le userId in update functions
+  const { userId } = req;
+
+  if (!userId) {
+    const { userId } = req.body;
+  }
+
+  const { ...updates } = req.body;
 
   // Vérification de l'ID de l'utilisateur
-  if (!id) {
+  if (!userId) {
     return res.status(400).json({ "message": "Un paramètre 'id' est requis." });
   }
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(userId).exec();
     if (!user) {
-      return res
-        .status(204)
-        .json({ "message": `Aucun utilisateur ne correspond à l'ID : ${id}.` });
+      return res.status(204).json({
+        "message": `Aucun utilisateur ne correspond à l'ID : ${userId}.`,
+      });
     }
 
     // Mise à jour des champs
@@ -374,7 +382,10 @@ const updatePassword = async (req, res) => {
 const logout = async (req, res) => {
   // Supprimer également le accessToken
   const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204); // Aucun contenu
+  if (!cookies?.jwt)
+    return res
+      .status(200)
+      .json({ "message": "Aucun utilisateur n'est connecté." });
 
   const refreshToken = cookies.jwt;
 
@@ -386,7 +397,7 @@ const logout = async (req, res) => {
       sameSite: "None",
       // secure: true, // À activer en production
     });
-    return res.sendStatus(204); // Aucun contenu
+    return res.status(204).json({ "message": "Vous étes déja déconnecté." }); // Aucun contenu
   }
 
   // Supprimer le refreshToken dans la base de données
@@ -398,8 +409,7 @@ const logout = async (req, res) => {
     sameSite: "None",
     // secure: true // À activer en production
   });
-
-  res.sendStatus(204); // Aucun contenu
+  res.status(200).json({ "message": "Déconnexion réussie." });
 };
 
 /**

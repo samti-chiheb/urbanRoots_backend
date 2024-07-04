@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const verifyJWT = require("../middleware/verifyJWT");
+
 const {
   register,
   login,
@@ -26,6 +28,6 @@ router.put("/update-info", updateUserInfo);
 router.put("/update-username", updateUsername);
 router.put("/update-email", updateEmail);
 router.put("/update-password", updatePassword);
-router.delete("/delete-user", deleteUser);
+router.delete("/delete", deleteUser);
 
 module.exports = router;
