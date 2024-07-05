@@ -100,9 +100,9 @@ const register = async (req, res) => {
  * @returns {void}
  */
 const login = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { identifier, password } = req.body;
 
-  if ((!username && !email) || !password) {
+  if (!identifier || !password) {
     return res.status(400).json({
       "message":
         "Le nom d'utilisateur ou l'email et le mot de passe sont requis !",
@@ -111,8 +111,8 @@ const login = async (req, res) => {
 
   // Chercher l'utilisateur par username ou email
   const foundUser = await User.findOne({
-    $or: [{ username }, { email }],
-  }).exec();
+    $or: [{ username: identifier }, { email: identifier }],
+  });
 
   if (!foundUser) return res.sendStatus(401); // Non autorisé
 
@@ -213,14 +213,8 @@ const getAccessToken = async (req, res) => {
  * @returns {void}
  */
 const updateUserInfo = async (req, res) => {
-  // toDO : optimise le userId in update functions
-  const { userId } = req;
-
-  if (!userId) {
-    const { userId } = req.body;
-  }
-
-  const { ...updates } = req.body;
+  // toDO : optimise le userId in update function
+  const { userId, ...updates } = req.body;
 
   // Vérification de l'ID de l'utilisateur
   if (!userId) {
