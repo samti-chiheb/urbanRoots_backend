@@ -114,7 +114,7 @@ const login = async (req, res) => {
     $or: [{ username: identifier }, { email: identifier }],
   });
 
-  if (!foundUser) return res.sendStatus(401); // Non autorisé
+  if (!foundUser) return res.status(401).json({ "message": "Email ou mot de passe incorrect" }); // Non autorisé
 
   // Évaluer le mot de passe
   const match = await bcrypt.compare(password, foundUser.password);
@@ -151,9 +151,9 @@ const login = async (req, res) => {
       // secure: true, // à activer en production
       maxAge: refreshTokenCookie,
     });
-    res.json({ "accessToken": accessToken });
+    res.json({ roles, accessToken });
   } else {
-    res.sendStatus(401); // Non autorisé
+    res.status(401).json({ "message": "Email ou mot de passe incorrect" });; // Non autorisé
   }
 };
 
