@@ -114,7 +114,10 @@ const login = async (req, res) => {
     $or: [{ username: identifier }, { email: identifier }],
   });
 
-  if (!foundUser) return res.status(401).json({ "message": "Email ou mot de passe incorrect" }); // Non autorisé
+  if (!foundUser)
+    return res
+      .status(401)
+      .json({ "message": "Email ou mot de passe incorrect" }); // Non autorisé
 
   // Évaluer le mot de passe
   const match = await bcrypt.compare(password, foundUser.password);
@@ -148,12 +151,20 @@ const login = async (req, res) => {
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       sameSite: "None",
-      // secure: true, // à activer en production
+      secure: true,
       maxAge: refreshTokenCookie,
     });
-    res.json({ roles, accessToken });
+    const userInfo = {
+      "id": foundUser.id,
+      "username": foundUser.username,
+    };
+    res.json({
+      userInfo,
+      roles,
+      accessToken,
+    });
   } else {
-    res.status(401).json({ "message": "Email ou mot de passe incorrect" });; // Non autorisé
+    res.status(401).json({ "message": "Email ou mot de passe incorrect" }); // Non autorisé
   }
 };
 
@@ -169,7 +180,7 @@ const login = async (req, res) => {
  */
 const getAccessToken = async (req, res) => {
   const cookies = req.cookies;
-  console.log(cookies);
+
   if (!cookies?.jwt) return res.sendStatus(401);
   const refreshToken = cookies.jwt;
   const foundUser = await User.findOne({ refreshToken }).exec();
@@ -195,7 +206,16 @@ const getAccessToken = async (req, res) => {
       { expiresIn: accessTokenExpiry }
     );
 
-    res.json({ accessToken });
+    const userInfo = {
+      "id": foundUser.id,
+      "username": foundUser.username,
+    };
+
+    res.json({
+      userInfo,
+      roles,
+      accessToken,
+    });
   });
 };
 
@@ -374,11 +394,10 @@ const updatePassword = async (req, res) => {
  * @returns {void}
  */
 const logout = async (req, res) => {
-  // Supprimer également le accessToken
   const cookies = req.cookies;
   if (!cookies?.jwt)
     return res
-      .status(200)
+      .status(201)
       .json({ "message": "Aucun utilisateur n'est connecté." });
 
   const refreshToken = cookies.jwt;
@@ -389,9 +408,9 @@ const logout = async (req, res) => {
     res.clearCookie("jwt", {
       httpOnly: true,
       sameSite: "None",
-      // secure: true, // À activer en production
+      secure: true,
     });
-    return res.status(204).json({ "message": "Vous étes déja déconnecté." }); // Aucun contenu
+    return res.status(201).json({ "message": "Vous étes déja déconnecté." }); // Aucun contenu
   }
 
   // Supprimer le refreshToken dans la base de données
@@ -401,7 +420,7 @@ const logout = async (req, res) => {
   res.clearCookie("jwt", {
     httpOnly: true,
     sameSite: "None",
-    // secure: true // À activer en production
+    secure: true,
   });
   res.status(200).json({ "message": "Déconnexion réussie." });
 };
