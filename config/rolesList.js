@@ -1,6 +1,6 @@
 const ROLES_LIST = {
   "admin": 9009,
-  "gardener": 4509,
+  "gardner": 4509,
   "user": 1009,
 };
 

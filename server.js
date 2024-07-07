@@ -17,7 +17,12 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+//routes
 app.use("/user", require("./routes/userRoutes"));
+app.use("/forum", require("./routes/formRoutes"));
+app.use("/forum/category", require("./routes/formCategoryRoutes"));
+app.use("/post", require("./routes/forumPostRoutes"));
 
 mongoose.connection.once("open", () => {
   console.log("Connected to mangoDB");
