@@ -18,11 +18,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 
-//routes
 app.use("/user", require("./routes/userRoutes"));
-app.use("/forum", require("./routes/formRoutes"));
-app.use("/forum/category", require("./routes/formCategoryRoutes"));
-app.use("/post", require("./routes/forumPostRoutes"));
+app.use("/forum-categories", require("./routes/formCategoryRoutes"));
+app.use("/forums", require("./routes/formRoutes"));
+app.use("/posts", require("./routes/forumPostRoutes"));
+app.use("/comments", require("./routes/forumCommentRoutes"));
 
 mongoose.connection.once("open", () => {
   console.log("Connected to mangoDB");

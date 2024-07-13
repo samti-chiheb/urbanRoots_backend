@@ -10,8 +10,7 @@ const User = require("../model/User");
  * @returns {void}
  */
 const createPost = async (req, res) => {
-  const { forumId } = req.params;
-  const { title, content, tags } = req.body;
+  const { title, content, tags, forumId } = req.body;
 
   if (!content || !title) {
     return res
@@ -67,18 +66,37 @@ const getPostsByForum = async (req, res) => {
 };
 
 /**
+ * Récupère tous les posts d'un forum.
+ *
+ * @param {Object} req - L'objet de la requête
+ * @param {Object} res - L'objet de la réponse
+ * @returns {void}
+ */
+const getPosts = async (req, res) => {
+  try {
+    // Récupère tous les posts
+    const posts = await ForumPost.find().populate("author forum");
+    res.status(200).json(posts);
+  } catch (err) {
+    // Gère les erreurs de récupération
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
  * Récupère un post spécifique par son ID.
  *
  * @param {Object} req - L'objet de la requête
  * @param {Object} res - L'objet de la réponse
  * @returns {void}
  */
-const getOnePost = async (req, res) => {
+const getPostById = async (req, res) => {
   const { postId } = req.params;
 
   try {
     // Récupère le post par ID et les données associées
-    const post = await ForumPost.findById(postId).populate("author");
+    const post = await ForumPost.findById(postId).populate("author forum");
     if (!post) {
       return res.status(404).json({ message: "Post non trouvé" });
     }
@@ -100,6 +118,7 @@ const getOnePost = async (req, res) => {
 const updatePost = async (req, res) => {
   const { postId } = req.params;
   const { title, content, tags } = req.body;
+  console.log(req.params);
 
   try {
     // Vérifie que l'utilisateur existe
@@ -115,10 +134,7 @@ const updatePost = async (req, res) => {
     }
 
     // Vérifie que l'utilisateur est l'auteur du post ou un admin
-    if (
-      post.author.toString() !== req.userId &&
-      !user.roles.includes("admin")
-    ) {
+    if (post.author.toString() !== req.userId) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à mettre à jour ce post" });
@@ -221,7 +237,7 @@ const likePost = async (req, res) => {
  * @param {Object} res - L'objet de la réponse
  * @returns {void}
  */
-const unlikePost = async (req, res) => {
+const dislikePost = async (req, res) => {
   const { postId } = req.params;
 
   try {
@@ -249,10 +265,11 @@ const unlikePost = async (req, res) => {
 
 module.exports = {
   createPost,
+  getPosts,
   getPostsByForum,
-  getOnePost,
+  getPostById,
   updatePost,
   deletePost,
   likePost,
-  unlikePost,
+  dislikePost,
 };

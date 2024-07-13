@@ -76,6 +76,8 @@ const updateComment = async (req, res) => {
   const { commentId } = req.params;
   const { content } = req.body;
 
+  
+
   try {
     // Vérifie que l'utilisateur existe
     const user = await User.findById(req.userId);

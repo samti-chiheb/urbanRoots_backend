@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ForumCategory = require("./ForumCategory");
 
 const forumSchema = new mongoose.Schema(
   {
@@ -8,7 +9,14 @@ const forumSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    }
+    },
+    categories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Forum_Category",
+        required: true,
+      },
+    ],
   },
   { timestamps: true }
 );

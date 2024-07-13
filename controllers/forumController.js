@@ -59,7 +59,7 @@ const createForum = async (req, res) => {
  * @param {Object} res - L'objet de la réponse
  * @returns {void}
  */
-const getAllForums = async (req, res) => {
+const getForums = async (req, res) => {
   try {
     // Récupère tous les forums et les données associées
     const forums = await Forum.find().populate("author categories");
@@ -251,6 +251,27 @@ const getAllCategories = async (req, res) => {
 };
 
 /**
+ * Récupère toutes les catégories de forum.
+ *
+ * @param {Object} req - L'objet de la requête
+ * @param {Object} res - L'objet de la réponse
+ * @returns {void}
+ */
+const getCategoryById = async (req, res) => {
+  const { categoryId } = req.params;
+  try {
+    const category = await ForumCategory.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ message: "Catégorie non trouvée" });
+    }
+    res.status(200).json(category);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
  * Met à jour une catégorie de forum par son ID.
  *
  * @param {Object} req - L'objet de la requête
@@ -293,6 +314,7 @@ const updateCategory = async (req, res) => {
  */
 const deleteCategory = async (req, res) => {
   const { categoryId } = req.params;
+  console.log(req.params);
 
   try {
     const user = await User.findById(req.userId);
@@ -317,12 +339,13 @@ const deleteCategory = async (req, res) => {
 
 module.exports = {
   createForum,
-  getAllForums,
+  getForums,
   getForumById,
   updateForum,
   deleteForum,
   createCategory,
   getAllCategories,
+  getCategoryById,
   updateCategory,
   deleteCategory,
 };

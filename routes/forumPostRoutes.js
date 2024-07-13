@@ -1,51 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT.js");
-const verifyRoles = require("../middleware/verifyRoles.js");
 const ROLES_LIST = require("../config/rolesList.js");
 const {
   createPost,
+  getPosts,
   getPostsByForum,
-  getOnePost,
+  getPostById,
   updatePost,
   deletePost,
   likePost,
-  unlikePost,
+  dislikePost,
 } = require("../controllers/forumPostController.js");
-const {
-  createComment,
-  getCommentsByPost,
-  updateComment,
-  deleteComment,
-  upvoteComment,
-  downvoteComment,
-} = require("../controllers/forumCommentController.js");
 
-// Route public
+// Récupérer tous les posts d'un forum
 router.get("/:forumId/posts", getPostsByForum);
-router.get("/:postId", getOnePost);
-router.get("/:postId/comments", getCommentsByPost);
+router.get("/", getPosts);
+router.get("/:postId", getPostById);
 
-// Middleware de vérification JWT pour toutes les routes suivantes
+// Middleware pour protéger les routes et vérifier les rôles
 router.use(verifyJWT);
 
-// user routes
-router.post("/create", createPost);
-router.put("/:postId", verifyRoles(ROLES_LIST.admin), updatePost);
+router.post("/", createPost);
+router.put("/:postId", updatePost);
 router.delete("/:postId", deletePost);
 
-router.post("/:postId/comments", createComment);
-router.put(
-  "/comments/:commentId",
-  verifyRoles(ROLES_LIST.admin),
-  updateComment
-);
-router.delete("/comments/:commentId", deleteComment);
-
-router.put("/:postId/like", likePost);
-router.put("/:postId/unlike", unlikePost);
-
-router.put("/comments/:commentId/upvote", upvoteComment);
-router.put("/comments/:commentId/downvote", downvoteComment);
+// Post Like
+router.patch("/:postId/like", likePost);
+router.patch("/:postId/dislike", dislikePost);
 
 module.exports = router;

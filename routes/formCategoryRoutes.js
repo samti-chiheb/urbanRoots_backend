@@ -4,30 +4,23 @@ const verifyJWT = require("../middleware/verifyJWT.js");
 const verifyRoles = require("../middleware/verifyRoles.js");
 const ROLES_LIST = require("../config/rolesList.js");
 const {
-  createCategory,
   getAllCategories,
+  getCategoryById,
+  createCategory,
   updateCategory,
   deleteCategory,
 } = require("../controllers/forumController.js");
 
-// Route public
-router.get("/all", getAllCategories);
+// Récupérer toutes les catégories
+router.get("/", getAllCategories);
+router.get("/:categoryId", getCategoryById);
 
-// Middleware de vérification JWT pour toutes les routes suivantes
+// Middleware pour protéger les routes et vérifier les rôles
 router.use(verifyJWT);
 
-// admin routes
-
+// protected routes
 router.post("/", verifyRoles(ROLES_LIST.admin), createCategory);
-router.put(
-  "/:categoryId",
-  verifyRoles(ROLES_LIST.admin),
-  updateCategory
-);
-router.delete(
-  "/:categoryId",
-  verifyRoles(ROLES_LIST.admin),
-  deleteCategory
-);
+router.put("/:categoryId", verifyRoles(ROLES_LIST.admin), updateCategory);
+router.delete("/:categoryId", verifyRoles(ROLES_LIST.admin), deleteCategory);
 
 module.exports = router;
