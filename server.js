@@ -19,8 +19,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/user", require("./routes/userRoutes"));
-app.use("/forum-categories", require("./routes/formCategoryRoutes"));
-app.use("/forums", require("./routes/formRoutes"));
+app.use("/forum-categories", require("./routes/forumCategoryRoutes"));
+app.use("/forums", require("./routes/forumRoutes"));
 app.use("/posts", require("./routes/forumPostRoutes"));
 app.use("/comments", require("./routes/forumCommentRoutes"));
 

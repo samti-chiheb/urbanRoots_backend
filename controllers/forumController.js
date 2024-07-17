@@ -96,6 +96,38 @@ const getForumById = async (req, res) => {
 };
 
 /**
+ * Récupère un forum spécifique par son ID.
+ *
+ * @param {Object} req - L'objet de la requête
+ * @param {Object} res - L'objet de la réponse
+ * @returns {void}
+ */
+const getForumByCategory = async (req, res) => {
+  const { categoryId } = req.params;
+
+  try {
+    // Récupère le forum par ID et les données associées
+    const forum = await Forum.find({
+      categories: categoryId,
+    }).populate("author categories");
+
+    if (!forum) {
+      return res.status(404).json({ message: "Forum non trouvé" });
+    }
+
+    if (forum.length === 0) {
+      return res.status(404).json({ message: "Forums non trouvés" });
+    }
+
+    res.status(200).json(forum);
+  } catch (err) {
+    // Gère les erreurs de récupération
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
  * Met à jour un forum par son ID.
  *
  * @param {Object} req - L'objet de la requête
@@ -341,6 +373,7 @@ module.exports = {
   createForum,
   getForums,
   getForumById,
+  getForumByCategory,
   updateForum,
   deleteForum,
   createCategory,

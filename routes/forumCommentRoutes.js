@@ -11,7 +11,7 @@ const {
   downvoteComment,
 } = require("../controllers/forumCommentController.js");
 
-router.get("/posts/:postId/comments", getCommentsByPost);
+router.get("/:postId", getCommentsByPost);
 
 // Les routes de création, mise à jour et suppression nécessitent un JWT
 router.use(verifyJWT);
