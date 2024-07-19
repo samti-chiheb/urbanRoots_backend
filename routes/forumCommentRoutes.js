@@ -16,7 +16,7 @@ router.get("/:postId", getCommentsByPost);
 // Les routes de création, mise à jour et suppression nécessitent un JWT
 router.use(verifyJWT);
 
-router.post("/post/:postId", createComment);
+router.post("/", createComment);
 router.put("/:commentId", updateComment);
 router.delete("/:commentId", deleteComment);
 

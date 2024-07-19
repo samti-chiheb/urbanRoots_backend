@@ -10,8 +10,7 @@ const ForumComment = require("../model/ForumComment");
  * @returns {void}
  */
 const createComment = async (req, res) => {
-  const { postId } = req.params;
-  const { content } = req.body;
+  const { content, postId } = req.body;
 
   if (!content) {
     return res.status(400).json({ message: "Le contenu est obligatoire" });
@@ -34,6 +33,8 @@ const createComment = async (req, res) => {
       author: req.userId,
       post: postId,
     });
+
+    await ForumPost.findByIdAndUpdate(postId, { $inc: { commentsCount: 1 } });
 
     res.status(201).json(comment);
   } catch (err) {
@@ -144,9 +145,12 @@ const deleteComment = async (req, res) => {
         message: "Vous n'êtes pas autorisé à supprimer ce commentaire",
       });
     }
+    
+    const postId = comment.post._id;
 
     // Supprime le commentaire
     await comment.deleteOne();
+    await ForumPost.findByIdAndUpdate(postId, { $inc: { commentsCount: -1 } });
     res.status(200).json({ message: "Commentaire supprimé" });
   } catch (err) {
     // Gère les erreurs de suppression
