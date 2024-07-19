@@ -54,9 +54,10 @@ const getCommentsByPost = async (req, res) => {
 
   try {
     // Récupère tous les commentaires du post et les données associées
-    const comments = await ForumComment.find({ post: postId }).populate(
-      "author"
-    );
+    const comments = await ForumComment.find({ post: postId }).populate({
+      path: "author",
+      select: "-password -refreshToken",
+    });
     res.status(200).json(comments);
   } catch (err) {
     // Gère les erreurs de récupération
@@ -75,8 +76,6 @@ const getCommentsByPost = async (req, res) => {
 const updateComment = async (req, res) => {
   const { commentId } = req.params;
   const { content } = req.body;
-
-  
 
   try {
     // Vérifie que l'utilisateur existe

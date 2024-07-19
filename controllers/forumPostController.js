@@ -56,7 +56,12 @@ const getPostsByForum = async (req, res) => {
 
   try {
     // Récupère tous les posts du forum et les données associées
-    const posts = await ForumPost.find({ forum: forumId }).populate("author");
+    const posts = await ForumPost.find({ forum: forumId })
+      .populate({
+        path: "author",
+        select: "-password -refreshToken",
+      })
+      .populate("forum");
     res.status(200).json(posts);
   } catch (err) {
     // Gère les erreurs de récupération
@@ -75,7 +80,11 @@ const getPostsByForum = async (req, res) => {
 const getPosts = async (req, res) => {
   try {
     // Récupère tous les posts
-    const posts = await ForumPost.find().populate("author forum");
+    const posts = await ForumPost.find().populate({
+        path: "author",
+        select: "-password -refreshToken",
+      })
+      .populate("forum");
     res.status(200).json(posts);
   } catch (err) {
     // Gère les erreurs de récupération
@@ -96,7 +105,11 @@ const getPostById = async (req, res) => {
 
   try {
     // Récupère le post par ID et les données associées
-    const post = await ForumPost.findById(postId).populate("author forum");
+    const post = await ForumPost.findById(postId).populate({
+        path: "author",
+        select: "-password -refreshToken",
+      })
+      .populate("forum");
     if (!post) {
       return res.status(404).json({ message: "Post non trouvé" });
     }

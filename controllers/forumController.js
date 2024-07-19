@@ -62,7 +62,11 @@ const createForum = async (req, res) => {
 const getForums = async (req, res) => {
   try {
     // Récupère tous les forums et les données associées
-    const forums = await Forum.find().populate("author categories");
+    const forums = await Forum.find().populate({
+        path: "author",
+        select: "-password -refreshToken",
+      })
+      .populate("categories");
     res.status(200).json(forums);
   } catch (err) {
     // Gère les erreurs de récupération
@@ -83,7 +87,12 @@ const getForumById = async (req, res) => {
 
   try {
     // Récupère le forum par ID et les données associées
-    const forum = await Forum.findById(forumId).populate("author categories");
+    const forum = await Forum.findById(forumId)
+      .populate({
+        path: "author",
+        select: "-password -refreshToken",
+      })
+      .populate("categories");
     if (!forum) {
       return res.status(404).json({ message: "Forum non trouvé" });
     }
@@ -109,7 +118,12 @@ const getForumByCategory = async (req, res) => {
     // Récupère le forum par ID et les données associées
     const forum = await Forum.find({
       categories: categoryId,
-    }).populate("author categories");
+    })
+      .populate({
+        path: "author",
+        select: "-password -refreshToken",
+      })
+      .populate("categories");
 
     if (!forum) {
       return res.status(404).json({ message: "Forum non trouvé" });
