@@ -154,10 +154,20 @@ const login = async (req, res) => {
       secure: true,
       maxAge: refreshTokenCookie,
     });
+
     const userInfo = {
       "id": foundUser.id,
       "username": foundUser.username,
+      "firstname": foundUser.firstname,
+      "lastname": foundUser.lastname,
+      "email": foundUser.email,
+      "profilePhoto": foundUser.profilePhoto,
+      "bio": foundUser.bio,
+      "location": foundUser.location,
+      "socialLinks": foundUser.socialLinks,
+      "website": foundUser.website,
     };
+
     res.json({
       userInfo,
       roles,
@@ -209,6 +219,14 @@ const getAccessToken = async (req, res) => {
     const userInfo = {
       "id": foundUser.id,
       "username": foundUser.username,
+      "firstname": foundUser.firstname,
+      "lastname": foundUser.lastname,
+      "email": foundUser.email,
+      "profilePhoto": foundUser.profilePhoto,
+      "bio": foundUser.bio,
+      "location": foundUser.location,
+      "socialLinks": foundUser.socialLinks,
+      "website": foundUser.website,
     };
 
     res.json({
@@ -219,26 +237,28 @@ const getAccessToken = async (req, res) => {
   });
 };
 
-/**
- * Met à jour les informations générales d'un utilisateur.
- *
- * Cette fonction prend les données de mise à jour de l'utilisateur à partir du corps de la requête,
- * vérifie l'existence de l'utilisateur dans la base de données, et met à jour les informations fournies.
- *
- * Champs requis : id
- * Champs optionnels : firstname, lastname, profilePhoto, bio, location, socialLinks, website
- *
- * @param {Object} req - L'objet de la requête contenant les données de mise à jour de l'utilisateur
- * @param {Object} res - L'objet de la réponse
- * @returns {void}
- */
 const updateUserInfo = async (req, res) => {
-  // toDO : optimise le userId in update function
-  const { userId, ...updates } = req.body;
+  const updates = req.body;
+  const { userId } = req;
 
   // Vérification de l'ID de l'utilisateur
   if (!userId) {
     return res.status(400).json({ "message": "Un paramètre 'id' est requis." });
+  }
+
+  // Champs interdits à la mise à jour
+  const forbiddenFields = ["password", "email", "username"];
+
+  // Vérifie si les champs interdits sont tentés d'être mis à jour
+  const isUpdatingForbiddenFields = forbiddenFields.some((field) =>
+    updates.hasOwnProperty(field)
+  );
+
+  if (isUpdatingForbiddenFields) {
+    return res.status(400).json({
+      "message":
+        "La mise à jour des champs 'password', 'email', ou 'username' n'est pas autorisée.",
+    });
   }
 
   try {
@@ -249,15 +269,19 @@ const updateUserInfo = async (req, res) => {
       });
     }
 
-    // Mise à jour des champs
-    for (const key in updates) {
-      if (updates.hasOwnProperty(key)) {
-        user[key] = updates[key];
-      }
-    }
+    // Objet pour suivre les champs réellement mis à jour
+    const updatedFields = {};
 
-    const result = await user.save();
-    res.json(result);
+    // Mise à jour des champs autorisés
+    Object.keys(updates).forEach((key) => {
+      if (user[key] !== undefined && user[key] !== updates[key]) {
+        user[key] = updates[key];
+        updatedFields[key] = updates[key]; // Enregistre seulement les champs qui ont été modifiés
+      }
+    });
+
+    await user.save();
+    res.json(updatedFields);
   } catch (err) {
     res.status(500).json({ "message": err.message });
   }
@@ -276,20 +300,29 @@ const updateUserInfo = async (req, res) => {
  * @returns {void}
  */
 const updateUsername = async (req, res) => {
-  const { id, username } = req.body;
+  const { password, username } = req.body;
+  const { userId } = req;
 
-  if (!id || !username) {
+  if (!userId || !username) {
     return res
       .status(400)
       .json({ "message": "L'ID et le nom d'utilisateur sont requis." });
   }
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(userId).exec();
     if (!user) {
+      return res.status(204).json({
+        "message": `Aucun utilisateur ne correspond à l'ID : ${userId}.`,
+      });
+    }
+
+    // Vérifier que l'ancien mot de passe correspond
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res
-        .status(204)
-        .json({ "message": `Aucun utilisateur ne correspond à l'ID : ${id}.` });
+        .status(401)
+        .json({ "message": "Le mot de passe ne correspond pas." });
     }
 
     const duplicateUsername = await User.findOne({ username }).exec();
@@ -301,7 +334,7 @@ const updateUsername = async (req, res) => {
 
     user.username = username;
     const result = await user.save();
-    res.json(result);
+    res.json({ "username": result.username });
   } catch (err) {
     res.status(500).json({ "message": err.message });
   }
@@ -320,18 +353,27 @@ const updateUsername = async (req, res) => {
  * @returns {void}
  */
 const updateEmail = async (req, res) => {
-  const { id, email } = req.body;
+  const { password, email } = req.body;
+  const { userId } = req;
 
-  if (!id || !email) {
+  if (!userId || !email) {
     return res.status(400).json({ "message": "L'ID et l'email sont requis." });
   }
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(userId).exec();
     if (!user) {
+      return res.status(204).json({
+        "message": `Aucun utilisateur ne correspond à l'ID : ${userId}.`,
+      });
+    }
+
+    // Vérifier que l'ancien mot de passe correspond
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res
-        .status(204)
-        .json({ "message": `Aucun utilisateur ne correspond à l'ID : ${id}.` });
+        .status(401)
+        .json({ "message": "Le mot de passe ne correspond pas." });
     }
 
     const duplicateEmail = await User.findOne({ email }).exec();
@@ -341,7 +383,7 @@ const updateEmail = async (req, res) => {
 
     user.email = email;
     const result = await user.save();
-    res.json(result);
+    res.json({ "email": result.email });
   } catch (err) {
     res.status(500).json({ "message": err.message });
   }
@@ -359,25 +401,40 @@ const updateEmail = async (req, res) => {
  * @returns {void}
  */
 const updatePassword = async (req, res) => {
-  const { id, password } = req.body;
+  const { password, newPassword } = req.body;
+  const { userId } = req;
 
-  if (!id || !password) {
+  console.log("==============");
+  console.log(password, newPassword);
+  console.log("==============");
+
+  if (!userId || !password) {
     return res
       .status(400)
       .json({ "message": "L'ID et le mot de passe sont requis." });
   }
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(userId).exec();
     if (!user) {
-      return res
-        .status(204)
-        .json({ "message": `Aucun utilisateur ne correspond à l'ID : ${id}.` });
+      return res.status(204).json({
+        "message": `Aucun utilisateur ne correspond à l'ID : ${userId}.`,
+      });
     }
 
-    user.password = await bcrypt.hash(password, 10);
-    const result = await user.save();
-    res.json(result);
+    // Vérifier que l'ancien mot de passe correspond
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ "message": "L'ancien mot de passe ne correspond pas." });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    return res
+      .status(200)
+      .json({ "message": "Le mot de passe a été mis à jour avec succès." });
   } catch (err) {
     res.status(500).json({ "message": err.message });
   }

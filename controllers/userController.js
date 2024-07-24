@@ -24,14 +24,14 @@ const deleteUser = async (req, res) => {
 };
 
 const getOneUser = async (req, res) => {
-  if (!req?.params?.id) {
+  if (!req?.userId) {
     return res.status(400).json({ "message": "an id param is required" });
   }
 
   const user = await User.findOne({ _id: req.params.id }).exec();
   if (!user) {
     return res
-      .status(204)
+      .status(200)
       .json({ "message": `No employee match the ID : "${req.params.id}" .` });
   }
 

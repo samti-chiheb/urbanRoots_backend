@@ -15,7 +15,7 @@ const {
   getAccessToken,
   deleteUser,
 } = require("../controllers/authController.js");
-const { getAllUsers } = require("../controllers/userController.js");
+const { getAllUsers, getOneUser } = require("../controllers/userController.js");
 
 // Route public
 router.post("/register", register);
