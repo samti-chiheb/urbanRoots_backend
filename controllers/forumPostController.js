@@ -131,7 +131,7 @@ const getPostById = async (req, res) => {
 const updatePost = async (req, res) => {
   const { postId } = req.params;
   const { title, content, tags } = req.body;
-  console.log(req.params);
+
 
   try {
     // Vérifie que l'utilisateur existe

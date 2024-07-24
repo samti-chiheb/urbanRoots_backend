@@ -74,7 +74,6 @@ const register = async (req, res) => {
       socialLinks,
       website,
     });
-    console.log(result);
 
     res.status(201).json({
       "success": `Nouvel utilisateur ${username} créé !`,
@@ -403,10 +402,6 @@ const updateEmail = async (req, res) => {
 const updatePassword = async (req, res) => {
   const { password, newPassword } = req.body;
   const { userId } = req;
-
-  console.log("==============");
-  console.log(password, newPassword);
-  console.log("==============");
 
   if (!userId || !password) {
     return res

@@ -24,7 +24,7 @@ const userSchema = new Schema(
     roles: {
       user: {
         type: Number,
-        default: 9009,
+        default: 1009,
       },
       gardener: {
         type: Number,
@@ -40,7 +40,7 @@ const userSchema = new Schema(
       required: true,
     },
     profilePhoto: {
-      type: String, 
+      type: String,
       default: null,
     },
     bio: {

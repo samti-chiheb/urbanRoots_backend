@@ -19,11 +19,9 @@ const verifyJWT = (req, res, next) => {
   const token = authHeader.split(" ")[1];
   jwt.verify(token, accessTokenSecret, (err, decoded) => {
     if (err) return res.sendStatus(403); // Forbidden
-    // toCheck console.log(decoded)
     req.userId = decoded.userInfo.id;
     req.username = decoded.userInfo.username;
     req.roles = decoded.userInfo.roles;
-    // toCheck console.log(req)
     next();
   });
 };
