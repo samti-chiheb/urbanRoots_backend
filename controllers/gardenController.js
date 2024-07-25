@@ -34,37 +34,51 @@ const validateLocation = (location) => {
  * @returns {void}
  */
 const createGarden = async (req, res) => {
-  const { name, location, description } = req.body;
+  const {
+    name,
+    street,
+    city,
+    postalCode,
+    type,
+    latitude,
+    longitude,
+    description,
+  } = req.body;
+
   // Vérification des champs requis
-  switch (true) {
-    case !name:
-      return res.status(400).json({ message: "Nom requis." });
-    case !location:
-      return res.status(400).json({ message: "Localisation requise." });
-    case !location.address:
-      return res.status(400).json({ message: "Adresse requise." });
-    case !location.address.street:
-      return res.status(400).json({ message: "Rue requise." });
-    case !location.address.city:
-      return res.status(400).json({ message: "Ville requise." });
-    case !location.address.postalCode:
-      return res.status(400).json({ message: "Code postal requis." });
-    case !location.coordinates:
-      return res.status(400).json({ message: "Coordonnées requises." });
+  if (!name) return res.status(400).json({ message: "Nom requis." });
+  if (!street || !city || !postalCode || !type || !latitude || !longitude) {
+    return res
+      .status(400)
+      .json({ message: "Tous les champs de localisation sont requis." });
   }
 
-  const locationError = validateLocation(location);
+  const location = {
+    address: {
+      street,
+      city,
+      postalCode,
+    },
+    coordinates: {
+      type,
+      coordinates: [parseFloat(latitude), parseFloat(longitude)],
+    },
+  };
 
+  // Validation des données de location
+  const locationError = validateLocation(location);
   if (locationError) {
     return res.status(400).json({ message: locationError });
   }
 
   try {
+    // Vérification de l'utilisateur
     const user = await User.findById(req.userId);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
+    // Création et sauvegarde du nouveau jardin
     const newGarden = new Garden({
       name,
       location,
@@ -129,9 +143,17 @@ const getGardenById = async (req, res) => {
  * @returns {void}
  */
 const updateGarden = async (req, res) => {
-  const { name, street, city, postalCode, type, coordinates, description } =
-    req.body;
-  const { userId } = req;
+  const {
+    name,
+    street,
+    city,
+    postalCode,
+    type,
+    latitude,
+    longitude,
+    description,
+  } = req.body;
+  const userId = req.userId;
 
   // Vérification de la présence d'au moins un des champs requis dans la requête
   if (
@@ -140,7 +162,8 @@ const updateGarden = async (req, res) => {
     !city &&
     !postalCode &&
     !type &&
-    !coordinates &&
+    !latitude &&
+    !longitude &&
     description === undefined
   ) {
     return res.status(400).json({
@@ -164,7 +187,7 @@ const updateGarden = async (req, res) => {
     // Vérification que l'utilisateur est l'auteur du jardin ou qu'il est admin
     const isAdmin = req.roles && req.roles.includes(ROLES_LIST.admin);
 
-    if (garden.author._id.toString() !== userId && !isAdmin) {
+    if (garden.author.toString() !== userId && !isAdmin) {
       return res
         .status(403)
         .json({ message: "Non autorisé à mettre à jour ce jardin." });
@@ -189,31 +212,13 @@ const updateGarden = async (req, res) => {
       garden.location.address.postalCode = postalCode;
       updatedFields.postalCode = postalCode;
     }
-    if (type || coordinates) {
-      // Vérification complète de la localisation si un des champs de coordonnées est fourni
-      const location = {
-        address: {
-          street: garden.location.address.street,
-          city: garden.location.address.city,
-          postalCode: garden.location.address.postalCode,
-        },
-        coordinates: {
-          type: type || garden.location.coordinates.type,
-          coordinates: coordinates || garden.location.coordinates.coordinates,
-        },
-      };
-      const locationError = validateLocation(location);
-      if (locationError) {
-        return res.status(400).json({ message: locationError });
-      }
-      if (type) {
-        garden.location.coordinates.type = type;
-        updatedFields.type = type;
-      }
-      if (coordinates) {
-        garden.location.coordinates.coordinates = coordinates;
-        updatedFields.coordinates = coordinates;
-      }
+    if (latitude !== undefined && longitude !== undefined) {
+      garden.location.coordinates.coordinates = [parseFloat(latitude), parseFloat(longitude)];
+      updatedFields.coordinates = [parseFloat(latitude), parseFloat(longitude)];
+    }
+    if (type) {
+      garden.location.coordinates.type = type;
+      updatedFields.type = type;
     }
     if (description !== undefined) {
       garden.description = description;
@@ -226,6 +231,7 @@ const updateGarden = async (req, res) => {
       updatedFields: updatedFields,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Erreur de mise à jour du jardin." });
   }
 };
@@ -248,26 +254,26 @@ const deleteGarden = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
-    
+
     // Vérification de l'existence du jardin urbain
     const garden = await Garden.findById(req.params.gardenId);
     if (!garden) {
       return res.status(404).json({ message: "Jardin non trouvé." });
     }
-    
+
     // Vérification que l'utilisateur est l'auteur du jardin ou qu'il est admin
     const isAdmin = req.roles && req.roles.includes(ROLES_LIST.admin);
     if (garden.author.toString() !== userId && !isAdmin) {
       return res
-      .status(403)
-      .json({ message: "Non autorisé à supprimer ce jardin." });
+        .status(403)
+        .json({ message: "Non autorisé à supprimer ce jardin." });
     }
-    
+
     // Suppression du jardin urbain
     await garden.deleteOne();
     res.status(200).json({ message: "Jardin supprimé avec succès." });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).json({ message: "Erreur de suppression du jardin." });
   }
 };
