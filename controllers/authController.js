@@ -145,7 +145,6 @@ const login = async (req, res) => {
     // Enregistrer le refreshToken avec l'utilisateur actuel
     foundUser.refreshToken = refreshToken;
     const result = await foundUser.save();
-    console.log(result);
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true,

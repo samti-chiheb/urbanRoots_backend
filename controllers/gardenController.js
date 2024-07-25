@@ -231,7 +231,6 @@ const updateGarden = async (req, res) => {
       updatedFields: updatedFields,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Erreur de mise à jour du jardin." });
   }
 };

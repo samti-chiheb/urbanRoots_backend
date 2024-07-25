@@ -286,7 +286,6 @@ const createCategory = async (req, res) => {
  * @returns {void}
  */
 const getAllCategories = async (req, res) => {
-  console.log("get all categories");
   try {
     const categories = await ForumCategory.find();
     res.status(200).json(categories);
@@ -360,7 +359,6 @@ const updateCategory = async (req, res) => {
  */
 const deleteCategory = async (req, res) => {
   const { categoryId } = req.params;
-  console.log(req.params);
 
   try {
     const user = await User.findById(req.userId);

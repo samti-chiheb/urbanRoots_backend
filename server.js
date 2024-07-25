@@ -27,5 +27,5 @@ app.use("/gardens", require("./routes/gardenRoutes"));
 
 mongoose.connection.once("open", () => {
   console.log("Connected to mangoDB");
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on PORT : ${PORT}`));
 });

@@ -1,13 +1,13 @@
 {
-  "name": "06tut",
+  "name": "urban_roots",
   "version": "1.0.0",
-  "description": "Express tutorial",
+  "description": "urban roots backend api",
   "main": "server.js",
   "scripts": {
     "start": "node server",
     "dev": "nodemon server"
   },
-  "author": "Dave Gray",
+  "author": "SAMTI Chiheb",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
