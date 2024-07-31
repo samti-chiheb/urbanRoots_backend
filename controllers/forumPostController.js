@@ -11,6 +11,7 @@ const User = require("../model/User");
  */
 const createPost = async (req, res) => {
   const { title, content, tags, forumId } = req.body;
+  const { userId } = req;
 
   if (!content || !title) {
     return res
@@ -19,7 +20,7 @@ const createPost = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
@@ -32,7 +33,7 @@ const createPost = async (req, res) => {
     const post = new ForumPost({
       title,
       content,
-      author: req.userId,
+      author: userId,
       forum: forumId,
       tags,
     });
@@ -55,6 +56,10 @@ const getPostsByForum = async (req, res) => {
   const { forumId } = req.params;
 
   try {
+    const forum = await Forum.findById(forumId);
+    if (!forum) {
+      return res.status(404).json({ message: "Forum non trouvé" });
+    }
     // Récupère tous les posts du forum et les données associées
     const posts = await ForumPost.find({ forum: forumId })
       .populate({
@@ -62,6 +67,7 @@ const getPostsByForum = async (req, res) => {
         select: "-password -refreshToken",
       })
       .populate("forum");
+
     res.status(200).json(posts);
   } catch (err) {
     // Gère les erreurs de récupération
@@ -80,7 +86,8 @@ const getPostsByForum = async (req, res) => {
 const getPosts = async (req, res) => {
   try {
     // Récupère tous les posts
-    const posts = await ForumPost.find().populate({
+    const posts = await ForumPost.find()
+      .populate({
         path: "author",
         select: "-password -refreshToken",
       })
@@ -105,7 +112,8 @@ const getPostById = async (req, res) => {
 
   try {
     // Récupère le post par ID et les données associées
-    const post = await ForumPost.findById(postId).populate({
+    const post = await ForumPost.findById(postId)
+      .populate({
         path: "author",
         select: "-password -refreshToken",
       })
@@ -131,7 +139,6 @@ const getPostById = async (req, res) => {
 const updatePost = async (req, res) => {
   const { postId } = req.params;
   const { title, content, tags } = req.body;
-
 
   try {
     // Vérifie que l'utilisateur existe
