@@ -62,7 +62,8 @@ const createForum = async (req, res) => {
 const getForums = async (req, res) => {
   try {
     // Récupère tous les forums et les données associées
-    const forums = await Forum.find().populate({
+    const forums = await Forum.find()
+      .populate({
         path: "author",
         select: "-password -refreshToken",
       })
@@ -165,7 +166,13 @@ const updateForum = async (req, res) => {
       return res.status(404).json({ message: "Forum non trouvé" });
     }
 
-    // Vérifie que les catégories existent
+    // Vérifie que les catégories existent et sont valides
+    if (!Array.isArray(categories)) {
+      return res
+        .status(400)
+        .json({ message: "Les catégories doivent être un tableau" });
+    }
+
     const validCategories = await ForumCategory.find({
       "_id": { $in: categories },
     });
@@ -182,7 +189,7 @@ const updateForum = async (req, res) => {
     ) {
       return res
         .status(403)
-        .json({ message: "Vous n'êtes pas autorisé à supprimer ce forum" });
+        .json({ message: "Vous n'êtes pas autorisé à modifier ce forum" }); // Updated message
     }
 
     // Met à jour les champs du forum
@@ -195,7 +202,11 @@ const updateForum = async (req, res) => {
   } catch (err) {
     // Gère les erreurs de mise à jour
     console.error(err);
-    res.status(500).json({ message: err.message });
+    res
+      .status(500)
+      .json({
+        message: "Une erreur s'est produite lors de la mise à jour du forum",
+      }); // Generic error message for the user
   }
 };
 
@@ -271,7 +282,9 @@ const createCategory = async (req, res) => {
     });
 
     const result = await category.save();
-    res.status(201).json(result);
+    res
+      .status(201)
+      .json({ message: "Catégorie créée avec succès", result: result });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
