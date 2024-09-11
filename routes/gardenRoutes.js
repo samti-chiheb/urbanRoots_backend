@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT.js");
-const verifyRoles = require("../middleware/verifyRoles.js");
-const ROLES_LIST = require("../config/rolesList.js");
+// const verifyRoles = require("../middleware/verifyRoles.js");
+// const ROLES_LIST = require("../config/rolesList.js");
+
 const {
   createGarden,
   getGardens,

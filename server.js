@@ -24,6 +24,8 @@ app.use("/forums", require("./routes/forumRoutes"));
 app.use("/posts", require("./routes/forumPostRoutes"));
 app.use("/comments", require("./routes/forumCommentRoutes"));
 app.use("/gardens", require("./routes/gardenRoutes"));
+app.use("/exchanges", require("./routes/exchangeRoutes"));
+app.use("/conversation", require("./routes/conversationRoutes"));
 
 mongoose.connection.once("open", () => {
   console.log("Connected to mangoDB");
